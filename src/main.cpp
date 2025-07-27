@@ -72,15 +72,20 @@ Token::Token(std::string &prop) : op{Ops::NONE}, prop{prop} {}
 Token::Token(Ops op) : op{op}, prop{""} {}
 
 struct Lexer {
+  static std::unordered_set<std::string> ops;
   Lexer(const char *fileName);
   void read_file(const char *fileName);
-  std::vector<Token> contents;
+  std::vector<Token> tokens;
   std::unordered_set<std::string, int> valid_props;
   void parse_prop(std::string &str);
   void parse_line(std::string &str);
   void is_valid_prop(const std::string &str);
   void parse_statment(std::string &string);
+  void parse_atomic(std::string &str);
 };
+
+std::unordered_set<std::string> Lexer::ops{
+    "\\->", "\\implies", "\\iff", "\\and", "\\or", "\\~", "(", ")"};
 
 void Lexer::is_valid_prop(const std::string &str) {
 
@@ -134,7 +139,35 @@ void Lexer::parse_prop(std::string &str) {
   is_valid_prop(name);
 }
 
-void Lexer::parse_statment(std::string &str) {}
+void Lexer::parse_atomic(std::string &str) {
+  if (!str.size()) {
+    return;
+  }
+  if (str[0] == ')') {
+    tokens.push_back(Ops::LP);
+  }
+  if (str[0] == ')') {
+    tokens.push_back(Ops::LP);
+  }
+  if (str[0] == '\\') {
+  }
+}
+
+void Lexer::parse_statment(std::string &str) {
+  std::string atomic = "";
+  int i = 1;
+  char c = str[i];
+  int str_size = str.size();
+  while (c != '$' && i < str_size) {
+    if (c == ' ') {
+      if (atomic.size()) {
+        parse_atomic(atomic);
+        atomic.clear();
+      }
+    }
+    c = str[++i];
+  }
+}
 
 void Lexer::parse_line(std::string &str) {
   if (!str.size()) {
@@ -171,7 +204,6 @@ void Lexer::read_file(const char *fileName) {
 
   while (std::getline(inputFile, line)) {
     parse_line(line);
-    // buffer << line << " ";
   }
 }
 
