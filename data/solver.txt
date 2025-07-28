@@ -1,0 +1,4 @@
+prop hello 
+prop G
+
+$P -> G and ~P$
