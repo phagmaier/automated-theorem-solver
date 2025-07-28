@@ -1,28 +1,59 @@
 #include "lexer.h"
 #include "helpers.h"
+#include "token.h"
+#include <unordered_map>
 
 namespace Lex {
-// banning these just to enforce that the whole thing is mroe readable
-const std::unordered_set<std::string> op_dic{"->", "implies", "iff", "and",
-                                             "or", "~",       "(",   ")"};
+const std::unordered_set<std::string> op_dic{
+    "->", "implies", "IMPLIES", "iff", "IFF", "<->", "and", "AND",
+    "&&", "or",      "OR",      "||",  "~",   "NEG", "(",   ")"};
+
+std::unordered_map<std::string, Ops> string_to_op = {
+    {"->", Ops::IMP},  {"implies", Ops::IMP}, {"IMPLIES", Ops::IMP},
+    {"iff", Ops::IFF}, {"IFF", Ops::IFF},     {"<->", Ops::IFF},
+    {"and", Ops::AND}, {"AND", Ops::AND},     {"&&", Ops::AND},
+    {"or", Ops::OR},   {"OR", Ops::OR},       {"||", Ops::OR},
+    {"~", Ops::NEG},   {"NEG", Ops::NEG},     {"(", Ops::LP},
+    {")", Ops::RP}};
 
 const std::unordered_set<char> reserved_chars = {
     ' ', '\t', '\n', '\r', '(', ')', '$', '\\', '!', '@', '#',
     '%', '^',  '&',  '*',  '+', '=', '|', '[',  ']', '{', '}',
-    ';', ':',  '\'', '"',  ',', '.', '<', '>',  '/', '?'};
+    ';', ':',  '\'', '"',  ',', '.', '<', '>',  '/', '?', '~'};
 } // namespace Lex
 
+void Lexer::print_tokens() {
+  for (Token &token : tokens) {
+    token.print_token();
+  }
+  std::cout << "CONCLUSION: ";
+  conclusion_token.print_token();
+  std::cout << "\n";
+}
+
+void Lexer::tokenize_symbol(std::string &str) {
+  if (Lex::op_dic.count(str)) {
+    tokens.emplace_back(Token(Lex::string_to_op[str]));
+  } else if (props.count(str)) {
+    tokens.emplace_back(Token(str));
+  } else {
+    std::cerr << "COULD NOT PARSE: " << str << "\n";
+    err_exit(INVALID_EXPR);
+  }
+}
+
 void Lexer::lex_expression() {
-  std::cout << "The original expression:\n" << expression << "\n";
+  // std::cout << "The original expression:\n" << expression << "\n";
   std::vector<std::string> strings = split_expression(expression);
   std::cout << "Here is the expression split by spaces\n";
+  /*
   for (std::string &str : strings) {
     std::cout << str << "\n";
   }
-
-  // loop through all the strings
-  // determine if it's an operation a pare or a proposition
-  // then tokenize accordingly
+  */
+  for (std::string &str : strings) {
+    tokenize_symbol(str);
+  }
 }
 
 void Lexer::is_prop_valid(std::string &str) {
@@ -52,8 +83,80 @@ void Lexer::lex_prop(std::string &str) {
       str.substr(prop_type_size, str.size() - prop_type_size);
   trim_white_space(prop_name);
   is_prop_valid(prop_name);
-  std::cout << "verifified prop name: " << prop_name << "\n";
+  // std::cout << "INSERTING " << str << " INTO VALLID PROPS\n";
   props.insert(prop_name);
+}
+
+// don't need symbol for conclusion as it's always just the thing after the
+// expression
+void Lexer::lex_conclusion() {
+  if (!conclusion.size()) {
+    err_exit(NO_CONCLUSION);
+  }
+  if (!props.count(conclusion)) {
+    err_exit(INVALID_CONC);
+  }
+  conclusion_token = Token(conclusion);
+}
+
+void Lexer::read_conclusion(std::ifstream &file) {
+  std::string line;
+  while (std::getline(file, line)) {
+    trim_white_space(line);
+    if (line.size()) {
+      if (conclusion.size()) {
+        conclusion += ' ';
+      }
+      conclusion += line;
+    }
+  }
+}
+
+void Lexer::read_expression(std::ifstream &file) {
+  std::string line;
+  while (std::getline(file, line)) {
+    trim_white_space(line);
+    if (line.empty()) {
+      continue;
+    }
+
+    if (line.back() == '$') {
+      line.pop_back();
+      if (!line.empty()) {
+        expression += " " + line;
+      }
+      read_conclusion(file);
+      return;
+    } else {
+      expression += " " + line;
+    }
+  }
+  err_exit(NO_CONCLUSION);
+}
+
+void Lexer::read_propositions(std::ifstream &file) {
+  std::string line;
+  while (std::getline(file, line)) {
+    trim_white_space(line);
+    if (line.empty()) {
+      continue;
+    }
+
+    if (line.rfind("prop ", 0) == 0) {
+      lex_prop(line);
+    } else if (line.front() == '$') {
+      if (line.back() == '$') {
+        expression = line.substr(1, line.length() - 2);
+        read_conclusion(file);
+        return;
+      } else {
+        expression = line.substr(1);
+        read_expression(file);
+        return;
+      }
+    }
+  }
+  err_exit(NO_EXPR);
 }
 
 Lexer::Lexer(const char *fileName) {
@@ -62,34 +165,12 @@ Lexer::Lexer(const char *fileName) {
     err_exit(FILE_ERR);
   }
 
-  std::string line;
-  bool processing_propositions = true;
-  expression = "";
-
-  while (std::getline(file, line)) {
-    trim_white_space(line);
-
-    if (!line.size()) {
-      continue;
-    }
-
-    if (processing_propositions) {
-      if (line[0] == '$') {
-        processing_propositions = false;
-        expression = line;
-      } else {
-        lex_prop(line);
-      }
-    } else {
-      expression += " ";
-      expression += line;
-    }
-  }
-
+  read_propositions(file);
   file.close();
 
-  if (expression.empty() || expression.back() != '$') {
-    err_exit(INVALID_EXPR);
-  }
   lex_expression();
+  lex_conclusion();
+
+  std::cout << "PRINTING THE TOKENIZED EXPRESSION\n";
+  print_tokens();
 }

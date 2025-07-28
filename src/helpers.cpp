@@ -15,6 +15,12 @@ void err_exit(MyErrs e) {
     throw std::runtime_error("INVALID STATMENT");
   case INVALID_EXPR:
     throw std::runtime_error("INVALID EXPRESSION");
+  case NO_EXPR:
+    throw std::runtime_error("NO STATMENT");
+  case NO_CONCLUSION:
+    throw std::runtime_error("NO CONCLUSION");
+  case INVALID_CONC:
+    throw std::runtime_error("INVALID CONCLUSION");
 
   case DUPLICATE_PROP:
     throw std::runtime_error("INVALID STATMENT");
@@ -43,9 +49,6 @@ int skip_whitespace(std::string &str, int i) {
 }
 
 std::vector<std::string> split_expression(std::string &str) {
-  str.pop_back();
-  str.erase(0, 1);
-
   std::string word = "";
   std::vector<std::string> words;
   for (char c : str) {
@@ -54,7 +57,7 @@ std::vector<std::string> split_expression(std::string &str) {
         words.push_back(word);
         word.clear();
       }
-    } else if (c == '(' || c == ')') {
+    } else if (c == '(' || c == ')' || c == '~') {
       if (!word.empty()) {
         words.push_back(word);
         word.clear();
@@ -67,6 +70,5 @@ std::vector<std::string> split_expression(std::string &str) {
   if (!word.empty()) {
     words.push_back(word);
   }
-  // cleaning up the $'s that enclose the expression
   return words;
 }

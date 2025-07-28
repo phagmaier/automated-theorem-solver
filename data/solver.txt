@@ -1,4 +1,6 @@
-prop hello 
+prop P
+
 prop G
 
-$P -> G and ~P$
+$P OR G and ~P$
+P

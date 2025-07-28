@@ -1,14 +1,14 @@
-#include "helpers.h"
-#include "lexer.h"
-
+#include "solver.h"
 /*RULES FOR INPUT
- * prop -> declares a prop
- * One decleration per line (as many blank lines in between though)
- * For now no comments
- * / before all ops (except parenthesies)
- * Must be a space between everything (including parens)
+ * prop declares a prop
+ * One decleration per line
+ * can have blank lines
+ * can have arbitrary amount of whitespace between symbols
+ * (add comments later)
+ * Must be a space between everything (except for (, ), ~)
  * Statment must be enclosed by $$
- * We can only evaluate one expression at a time
+ * We can only evaluate one expression at a time (for now)
+ * Only take propositions and operations (for now)
  * */
 
 /*Precedence	Operator	Name
@@ -41,7 +41,8 @@ int main(int argc, char *argv[]) {
   }
   */
     const char *fileName = "../data/solver.txt";
-    Lexer lexer = Lexer(fileName);
+    // Lexer lexer = Lexer(fileName);
+    Solver solver = Solver(fileName);
   } catch (const std::exception &e) {
     std::cerr << "Error: " << e.what() << std::endl;
     return 1;

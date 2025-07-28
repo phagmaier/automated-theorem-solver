@@ -10,6 +10,8 @@ add_executable(runme
     src/main.cpp
     src/helpers.cpp
     src/lexer.cpp
+    src/token.cpp
+    src/solver.cpp
 )
 
 # Apply include directories to the `runme` target
