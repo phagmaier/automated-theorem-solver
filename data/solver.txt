@@ -2,5 +2,5 @@ prop P
 
 prop G
 
-$P OR G and ~P$
-P
+$P OR G and ~P and P$
+P AND G

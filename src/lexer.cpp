@@ -26,8 +26,11 @@ void Lexer::print_tokens() {
   for (Token &token : tokens) {
     token.print_token();
   }
-  std::cout << "CONCLUSION: ";
-  conclusion_token.print_token();
+  std::cout << "CONCLUSION:\n";
+  for (Token &token : conclusion_tokens) {
+    token.print_token();
+  }
+  // conclusion_token.print_token();
   std::cout << "\n";
 }
 
@@ -45,7 +48,7 @@ void Lexer::tokenize_symbol(std::string &str) {
 void Lexer::lex_expression() {
   // std::cout << "The original expression:\n" << expression << "\n";
   std::vector<std::string> strings = split_expression(expression);
-  std::cout << "Here is the expression split by spaces\n";
+  // std::cout << "Here is the expression split by spaces\n";
   /*
   for (std::string &str : strings) {
     std::cout << str << "\n";
@@ -70,8 +73,6 @@ void Lexer::is_prop_valid(std::string &str) {
   }
 }
 
-// tells you if you read the expression which is the last line after this
-// nothing more will be processed
 void Lexer::lex_prop(std::string &str) {
   static constexpr const char *prop_type = "prop ";
   static constexpr int prop_type_size = 5;
@@ -87,16 +88,24 @@ void Lexer::lex_prop(std::string &str) {
   props.insert(prop_name);
 }
 
-// don't need symbol for conclusion as it's always just the thing after the
-// expression
 void Lexer::lex_conclusion() {
   if (!conclusion.size()) {
     err_exit(NO_CONCLUSION);
   }
-  if (!props.count(conclusion)) {
-    err_exit(INVALID_CONC);
+  std::vector<std::string> strings = split_expression(conclusion);
+  if (!conclusion.size()) {
+    err_exit(NO_CONCLUSION);
   }
-  conclusion_token = Token(conclusion);
+  for (std::string &str : strings) {
+    if (Lex::op_dic.count(str)) {
+      conclusion_tokens.emplace_back(Token(Lex::string_to_op[str]));
+    } else if (props.count(str)) {
+      conclusion_tokens.emplace_back(Token(str));
+    } else {
+      std::cerr << "COULD NOT PARSE: " << str << "\n";
+      err_exit(INVALID_CONC);
+    }
+  }
 }
 
 void Lexer::read_conclusion(std::ifstream &file) {

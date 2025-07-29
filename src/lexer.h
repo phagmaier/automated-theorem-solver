@@ -20,9 +20,10 @@ struct Lexer {
   void is_prop_valid(std::string &str);
   void tokenize_symbol(std::string &str);
   void print_tokens();
+
   std::vector<Token> tokens;
   std::string expression;
   std::string conclusion;
-  Token conclusion_token;
+  std::vector<Token> conclusion_tokens;
   std::unordered_set<std::string> props;
 };
