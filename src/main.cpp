@@ -1,3 +1,4 @@
+#include "display_tree.h"
 #include "solver.h"
 /*RULES FOR INPUT
  * prop declares a prop
@@ -43,6 +44,9 @@ int main(int argc, char *argv[]) {
     const char *fileName = "../data/solver.txt";
     // Lexer lexer = Lexer(fileName);
     Solver solver = Solver(fileName);
+    solver.solve();
+    generate_graphviz_file(solver, "ast.dot");
+    std::cout << "MADE GRAPH\n";
   } catch (const std::exception &e) {
     std::cerr << "Error: " << e.what() << std::endl;
     return 1;

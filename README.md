@@ -1,5 +1,9 @@
 # 💻 A Simple Theorem Prover
 
+## ⚠️ Under Construction
+
+This 'Prover' is not yet complete. Do not use yet. You are more than welcome to watch me struggle along the way or even provide help.
+
 ## ✨ Project Description
 
 This is a foundational theorem prover designed to analyze and validate logical arguments written in a simple, human-readable format. The tool takes a file containing a set of propositional declarations, a main logical formula, and a conclusion, and determines whether the conclusion logically follows from the premises. This project serves as a learning exercise in parsing, logical transformation, and automated proof techniques.
@@ -48,12 +52,13 @@ P
 
 ## 📋 TODO
 
-- [ ] Allow Conclusion to be more than a proposition (currently can't even be negated)
-- [ ] Create the recursive descent parser
-- [ ] Once in tree format simplify modify and cancel out
+- [ ] Conver to to Clause/dynamic bitset type
+- [ ] Make unordered set work with clause type
+- [x] Create the recursive descent parser
+- [x] Once in tree format simplify modify and cancel out
+- [ ] Parse/Convert conclusion to CRF Form and negate it
 - [ ] Make language more verbose create better syntax
 - [ ] Allow for more difficult kinds of theorems 
-- [ ] Allow for downloads and write a little bash script so can compile from anywhere
 
 * ```
 

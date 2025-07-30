@@ -15,7 +15,7 @@ Dic::Dic(std::unordered_set<std::string> &props) {
   }
 }
 
-bool Dic::add_clause(std::vector<std::string> &clause) {
+bool Dic::insert(std::vector<std::string> &clause) {
   std::string result = "";
   std::vector<int> numeric;
   for (std::string &str : clause) {
@@ -28,10 +28,10 @@ bool Dic::add_clause(std::vector<std::string> &clause) {
   return clause_set.insert(result).second;
 }
 
-bool Dic::add_clauses(std::vector<std::vector<std::string>> &clauses) {
+bool Dic::insert(std::vector<std::vector<std::string>> &clauses) {
   bool uniique_insert = false;
   for (std::vector<std::string> &vec : clauses) {
-    uniique_insert |= add_clause(vec);
+    uniique_insert |= insert(vec);
   }
   return uniique_insert;
 }
