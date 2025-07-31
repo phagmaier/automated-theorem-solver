@@ -10,7 +10,7 @@ The current implementation uses **proof by contradiction** to determine theorem 
 
 ## ✨ Project Description
 
-This theorem prover is designed to analyze and validate logical arguments written in a simple, human-readable format. It processes an input file containing propositional declarations, a set of logical premises, and a conclusion. The tool then determines whether the conclusion logically follows from the premises. This project serves as a practical learning exercise in parsing, logical transformation, and automated proof techniques.
+This automated theorem prover is designed to analyze and validate logical arguments written in a simple, human-readable format. It processes an input file containing propositional declarations, a set of logical premises, and a conclusion. The tool then determines whether the conclusion logically follows from the premises. This project serves as a practical learning exercise in parsing, logical transformation, and automated proof techniques.
 
 ---
 
@@ -27,19 +27,12 @@ This theorem prover is designed to analyze and validate logical arguments writte
 
 To compile and run the prover, follow these steps:
 
-1.  Place your input file (e.g., `input.txt`) in your project's root directory.
-2.  Compile the C++ source files using a standard C++ compiler like g++. Ensure you include all necessary source files from the `src` directory:
-
-    ```sh
-    g++ -o prover src/main.cpp src/lexer.cpp src/tree.cpp src/dynamicbitset.cpp src/clause.cpp src/solver.cpp
-    ```
-
-3.  Run the executable, passing your input file as an argument:
-
-    ```sh
-    ./prover input.txt
-    ```
-
+1.  Write your basic theorem in [`solver.txt`](data/solver.txt)
+2.  I have provided a CMAKE file that you can use to build the program. Or You can manually compile. All files needed for building are in the CMAKE file
+3. To compile with cmake `cmake -B build` and then `cmake --build build`
+4. I also wrote two short bash scripts to compile & run. `./clean_build.sh` to clean build and run and `./runme.sh` to build and run
+5. If you manually compiled using either cmake the executable should be in the `/build` directory and the executable should be called `runme` to run just run the executable `./runme`
+ 
 ---
 
 ## 📝 Input Syntax
@@ -96,13 +89,13 @@ Q
 
 | File Name                                   | Description                                                                     |
 | :------------------------------------------ | :------------------------------------------------------------------------------ |
-| [`src/main.cpp`](src/main.cpp)              | The primary entry point; orchestrates the theorem prover's execution flow.      |
-| [`src/lexer.cpp`](src/lexer.cpp)            | Handles **lexical analysis**, breaking raw input text into meaningful tokens.   |
-| [`src/tree.cpp`](src/tree.cpp)              | **Parses** the tokens to construct an Abstract Syntax Tree (AST) in CNF form.  |
-| [`src/dynamicbitset.cpp`](src/dynamicbitset.cpp) | Provides an efficient, dynamic bitset representation for propositions.          |
-| [`src/clause.cpp`](src/clause.cpp)          | Defines the `Clause` structure, representing collections of positive and negative literals (propositions) using a dynamic bitset. |
-| [`src/solver.cpp`](src/solver.cpp)          | Contains the core **resolution-based theorem proving logic**.                   |
-| `data/solver.txt`                           | File where theorems **MUST** be written to. (Will be changed soon.)          |
+| [`main.cpp`](src/main.cpp)              | The primary entry point; orchestrates the theorem prover's execution flow.      |
+| [`lexer.cpp`](src/lexer.cpp)            | Handles **lexical analysis**, breaking raw input text into meaningful tokens.   |
+| [`tree.cpp`](src/tree.cpp)              | **Parses** the tokens to construct an Abstract Syntax Tree (AST) in CNF form.  |
+| [`dynamicbitset.cpp`](src/dynamicbitset.cpp) | Provides an efficient, dynamic bitset representation for propositions.          |
+| [`clause.cpp`](src/clause.cpp)          | Defines the `Clause` structure, representing collections of positive and negative literals (propositions) using a dynamic bitset. |
+| [`solver.cpp`](src/solver.cpp)          | Contains the core **resolution-based theorem proving logic**.                   |
+| [`solver.txt`](data/solver.txt)                           | File where theorems **MUST** be written to. (Will be changed soon.)          |
 | `LICENSE`                                   | Contains the licensing information for the project.                             |
 | `README.md`                                 | This documentation file.                                                        |
 
