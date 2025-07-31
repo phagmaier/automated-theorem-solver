@@ -1,6 +1,6 @@
-prop P
+prop M
+prop N
 
-prop G
+$(M IFF N) AND (~N)$
 
-$P OR G and ~P and P$
-P AND G
+~M

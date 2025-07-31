@@ -27,24 +27,18 @@
 // this program and we'd run it
 // for now to make things easier during building everything will be in the data
 // folder in a file called file.txt
-int main(int argc, char *argv[]) {
+int main() {
   try {
-    /*
-    if (argc < 2) {
-      err_exit(NO_ARGS);
-    }
 
-    Lexer my_lexer(argv[1]);
-
-  } catch (const std::exception &e) {
-    std::cerr << "Error: " << e.what() << std::endl;
-    return 1;
-  }
-  */
     const char *fileName = "../data/solver.txt";
     // Lexer lexer = Lexer(fileName);
+    // init solver
+    std::cout << "STARTING SOLVER\n";
     Solver solver = Solver(fileName);
+    std::cout << "SOLVER Initialized\n";
+    std::cout << "SOLVING \n";
     solver.solve();
+    std::cout << "Solved\n";
     generate_graphviz_file(solver, "ast.dot");
     std::cout << "MADE GRAPH\n";
   } catch (const std::exception &e) {

@@ -1,4 +1,0 @@
-1. Solver will now hold the dictionary for all propositions (string to number and vice versa) (only need 1 as negations are same position different bitset)
-2. Make Dictionary compatable with new Clause class which is the pair of bitsets
-2. Instead of strings when making your clauses need to convert them to bitsets using the solver dictionaries to convert them 
-

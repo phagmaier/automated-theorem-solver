@@ -65,40 +65,38 @@ Clause Solver::generate_clause(Clause &A, Clause &B, DynamicBitset &collision) {
   return new_clause;
 }
 
+// In solver.cpp
 bool Solver::find_contradiction() {
-  bool unique = false;
+  bool new_clause_found_in_pass;
   do {
-    const int num_clauses = clause_set.size();
-    for (int outer_idx = 0; outer_idx < num_clauses; ++outer_idx) {
-      Clause &A = clauses[outer_idx];
-      for (int inner_idx = outer_idx + 1; inner_idx < num_clauses;
-           ++inner_idx) {
-        Clause &B = clauses[inner_idx];
+    new_clause_found_in_pass = false;
+
+    int clauses_to_process = clauses.size();
+
+    for (int i = 0; i < clauses_to_process; ++i) {
+      for (int j = i + 1; j < clauses_to_process; ++j) {
+        Clause &A = clauses[i];
+        Clause &B = clauses[j];
+
         DynamicBitset collision = generate_collision(A, B);
+
         if (collision.count() == 1) {
           Clause new_clause = generate_clause(A, B, collision);
+
           if (is_empty_set(new_clause)) {
             return true;
           }
-          if (!unique) {
-            unique = clause_set.insert(new_clause).second;
-            if (unique) {
-              clauses.push_back(new_clause);
-            }
-          } else {
-            bool tmp = clause_set.insert(new_clause).second;
-            if (tmp) {
-              clauses.push_back(new_clause);
-            }
+          if (clause_set.insert(new_clause).second) {
+            clauses.push_back(new_clause);
+            new_clause_found_in_pass = true;
           }
         }
       }
     }
+  } while (new_clause_found_in_pass);
 
-  } while (unique);
   return false;
 }
-
 void Solver::negate_conclusion() {
   neg_conclusion.push_back(Token(Ops::NEG));
   neg_conclusion.push_back(Token(Ops::LP));

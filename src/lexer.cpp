@@ -180,6 +180,6 @@ Lexer::Lexer(const char *fileName) {
   lex_expression();
   lex_conclusion();
 
-  std::cout << "PRINTING THE TOKENIZED EXPRESSION\n";
+  // std::cout << "PRINTING THE TOKENIZED EXPRESSION\n";
   print_tokens();
 }

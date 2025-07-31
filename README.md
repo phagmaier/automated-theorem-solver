@@ -1,67 +1,123 @@
-# 💻 A Simple Theorem Prover
+# 💻 Theorem Prover
 
-## ⚠️ Under Construction
+## ⚠️ Under Construction/Work in Progress
 
-This 'Prover' is not yet complete. Do not use yet. You are more than welcome to watch me struggle along the way or even provide help.
+This project currently functions as a basic theorem prover for **propositional logic**, validating arguments without quantifiers. While ambitiously aiming for features like quantifier support and advanced proof automation (acknowledging established tools like Coq), its primary purpose is a **learning exercise** in logical system development.
+
+The current implementation uses **proof by contradiction** to determine theorem validity. It shows the transformation of the input theorem and conclusion into **Conjunctive Normal Form (CNF)** but does not yet provide explicit step-by-step proof derivations.
+
+---
 
 ## ✨ Project Description
 
-This is a foundational theorem prover designed to analyze and validate logical arguments written in a simple, human-readable format. The tool takes a file containing a set of propositional declarations, a main logical formula, and a conclusion, and determines whether the conclusion logically follows from the premises. This project serves as a learning exercise in parsing, logical transformation, and automated proof techniques.
+This theorem prover is designed to analyze and validate logical arguments written in a simple, human-readable format. It processes an input file containing propositional declarations, a set of logical premises, and a conclusion. The tool then determines whether the conclusion logically follows from the premises. This project serves as a practical learning exercise in parsing, logical transformation, and automated proof techniques.
+
+---
 
 ## ✅ Features
 
-* **Propositional Logic:** Supports basic propositional variables.
-* **Intuitive Syntax:** Uses a clear, file-based syntax with keywords and delimiters.
-* **Standard Operators:** Implements a core set of logical operators including AND, OR, NOT, IMPLIES, and IFF.
-* **Structured Input:** Enforces a clean separation between proposition declarations, premises, and the final conclusion.
+* **Propositional Logic:** Supports fundamental propositional variables.
+* **Intuitive Syntax:** Utilizes a clear, file-based syntax with dedicated keywords and delimiters for structured input.
+* **Standard Operators:** Implements a core set of logical operators including **AND**, **OR**, **NOT**, **IMPLIES** (`->`, `imp`, `IMP`), and **IFF** (`<->`, `iff`, `IFF`).
+* **Structured Input:** Enforces a clean separation between proposition declarations, premises, and the final conclusion for clarity.
+
+---
 
 ## 🚀 Getting Started
 
 To compile and run the prover, follow these steps:
 
-1.  Place your input file (e.g., `input.txt`) in the project directory.
-2.  Compile the C++ source files using a standard C++ compiler like g++:
+1.  Place your input file (e.g., `input.txt`) in your project's root directory.
+2.  Compile the C++ source files using a standard C++ compiler like g++. Ensure you include all necessary source files from the `src` directory:
+
     ```sh
-    g++ -o prover main.cpp lexer.cpp <other_files>.cpp
+    g++ -o prover src/main.cpp src/lexer.cpp src/tree.cpp src/dynamicbitset.cpp src/clause.cpp src/solver.cpp
     ```
+
 3.  Run the executable, passing your input file as an argument:
+
     ```sh
     ./prover input.txt
     ```
 
+---
+
 ## 📝 Input Syntax
 
-The input file follows a specific, structured format:
+* The language is **case-sensitive**.
+* All operations must be separated by **spaces**, with the exception of single-character operators (`~`, `(`, `)`).
 
-1.  **Proposition Declarations:** Start with the keyword `prop`.
-2.  **Premise Expression:** Encased within `$` delimiters. Can be multi-line.
-3.  **Conclusion:** A single line following the premises, also encased in `$`.
+**Reserved words/Operations:**
+* `AND`, `and`
+* `OR`, `or`
+* `NOT`, `not`
+* `NEG`, `neg`, `~`
+* `Prop`, `prop`, `PROP`
+* `->`, `imp`, `IMP`
+* `<->`, `iff`, `IFF`
+* `(`, `)`
 
-**Example:**
+**File Structure:**
+
+1.  **Proposition Declarations:**
+    * Must begin with the keyword `prop`.
+    * Each proposition declaration must be on a single line.
+    * Proposition names **cannot be reserved words** and should only contain alphanumerics.
+    * **Example:** `prop P`
+
+2.  **Premise Expression:**
+    * Encased within `$` delimiters.
+    * Can span multiple lines.
+    * **Example:** `$P -> Q & ~P$`
+
+3.  **Conclusion:**
+    * Any content after the premises (`$`) is considered the conclusion.
+    * Can be multi-line.
+    * **Example:**
+        ```
+        Q
+        ```
+
+**Complete Example:**
 
 ```
 prop P
 prop Q
-P −> Q & ~P
+$P -\> Q & \~P$
 
-P
-```
+Q
 ```
 
-*Note: This example is missing the conclusion for demonstration. The final argument structure depends on the chosen proof method.*
+
+
+---
+
+## 📂 Project Structure (Major Files)
+
+| File Name                                   | Description                                                                     |
+| :------------------------------------------ | :------------------------------------------------------------------------------ |
+| [`src/main.cpp`](src/main.cpp)              | The primary entry point; orchestrates the theorem prover's execution flow.      |
+| [`src/lexer.cpp`](src/lexer.cpp)            | Handles **lexical analysis**, breaking raw input text into meaningful tokens.   |
+| [`src/tree.cpp`](src/tree.cpp)              | **Parses** the tokens to construct an Abstract Syntax Tree (AST) in CNF form.  |
+| [`src/dynamicbitset.cpp`](src/dynamicbitset.cpp) | Provides an efficient, dynamic bitset representation for propositions.          |
+| [`src/clause.cpp`](src/clause.cpp)          | Defines the `Clause` structure, representing collections of positive and negative literals (propositions) using a dynamic bitset. |
+| [`src/solver.cpp`](src/solver.cpp)          | Contains the core **resolution-based theorem proving logic**.                   |
+| `data/solver.txt`                           | File where theorems **MUST** be written to. (Will be changed soon.)          |
+| `LICENSE`                                   | Contains the licensing information for the project.                             |
+| `README.md`                                 | This documentation file.                                                        |
+
+---
 
 ## 📋 TODO
 
-- [ ] Conver to to Clause/dynamic bitset type
-- [ ] Make unordered set work with clause type
-- [x] Create the recursive descent parser
-- [x] Once in tree format simplify modify and cancel out
-- [ ] Parse/Convert conclusion to CRF Form and negate it
-- [ ] Make language more verbose create better syntax
-- [ ] Allow for more difficult kinds of theorems 
+* [ ] Add support for **quantifiers** (First-Order Logic).
+* [ ] Improve language verbosity and syntax for enhanced readability and expressiveness.
+* [ ] Allow for more complex theorem structures and advanced proof methods.
+* [ ] Implement explicit **proof step generation** to show derivation details.
+* [ ] Enhance file input: allow the theorem file to be located anywhere, not just in `data/solver.txt`.
 
-* ```
+---
 
 ## 📄 License
 
-Distributed under the BSD 3-Clause. See `LICENSE` for more information.
+Distributed under the BSD 3-Clause License. See `LICENSE` for more information.
