@@ -4,11 +4,17 @@ Solver::Solver(const char *fileName) {
   Lexer lex = Lexer(fileName);
 
   tokens = std::move(lex.tokens);
-  dic = Dic(lex.props);
+  conclusion = std::move(lex.conclusion_tokens);
+  negate_conclusion();
+  num_props = 0;
+  for (auto &token : lex.props) {
+    string_to_int[token] = num_props++;
+  }
   tree = Tree();
+  conc_tree = Tree();
 }
 
-void Solver::collect_literals(Node *node, std::vector<std::string> &clause) {
+void Solver::collect_literals(Node *node, Clause &clause) {
   if (!node) {
     return;
   }
@@ -16,10 +22,9 @@ void Solver::collect_literals(Node *node, std::vector<std::string> &clause) {
     collect_literals(node->left, clause);
     collect_literals(node->right, clause);
   } else if (node->get_node_op() == Ops::NEG) {
-    std::string literal = "~" + node->left->token.prop;
-    clause.push_back(literal);
+    clause.set_negative(string_to_int[node->token.prop]);
   } else {
-    clause.push_back(node->token.prop);
+    clause.set_positive(string_to_int[node->token.prop]);
   }
 }
 
@@ -32,16 +37,87 @@ void Solver::get_clauses(Node *node) {
     get_clauses(node->left);
     get_clauses(node->right);
   } else {
-    std::vector<std::string> clause;
+    Clause clause = Clause(num_props);
     collect_literals(node, clause);
 
-    if (dic.insert(clause)) {
+    if (clause_set.insert(clause).second) {
       clauses.push_back(clause);
     }
   }
 }
 
+bool Solver::is_empty_set(Clause &new_clause) {
+  return (new_clause.positive_mask.is_zero() &&
+          new_clause.negative_mask.is_zero());
+}
+
+// if clash.count() == 1 then you generate new clause
+DynamicBitset Solver::generate_collision(Clause &A, Clause &B) {
+  return (A.positive_mask & B.negative_mask) |
+         (A.negative_mask & B.positive_mask);
+}
+Clause Solver::generate_clause(Clause &A, Clause &B, DynamicBitset &collision) {
+  Clause new_clause = Clause(num_props);
+  new_clause.positive_mask = A.positive_mask | B.positive_mask;
+  new_clause.negative_mask = A.negative_mask | B.negative_mask;
+  new_clause.positive_mask &= ~collision;
+  new_clause.negative_mask &= ~collision;
+  return new_clause;
+}
+
+bool Solver::find_contradiction() {
+  bool unique = false;
+  do {
+    const int num_clauses = clause_set.size();
+    for (int outer_idx = 0; outer_idx < num_clauses; ++outer_idx) {
+      Clause &A = clauses[outer_idx];
+      for (int inner_idx = outer_idx + 1; inner_idx < num_clauses;
+           ++inner_idx) {
+        Clause &B = clauses[inner_idx];
+        DynamicBitset collision = generate_collision(A, B);
+        if (collision.count() == 1) {
+          Clause new_clause = generate_clause(A, B, collision);
+          if (is_empty_set(new_clause)) {
+            return true;
+          }
+          if (!unique) {
+            unique = clause_set.insert(new_clause).second;
+            if (unique) {
+              clauses.push_back(new_clause);
+            }
+          } else {
+            bool tmp = clause_set.insert(new_clause).second;
+            if (tmp) {
+              clauses.push_back(new_clause);
+            }
+          }
+        }
+      }
+    }
+
+  } while (unique);
+  return false;
+}
+
+void Solver::negate_conclusion() {
+  neg_conclusion.push_back(Token(Ops::NEG));
+  neg_conclusion.push_back(Token(Ops::LP));
+  for (Token &token : conclusion) {
+    neg_conclusion.push_back(token);
+  }
+  neg_conclusion.push_back(Token(Ops::RP));
+}
+
 void Solver::solve() {
   tree.parse(tokens);
   get_clauses(tree.head);
+  conc_tree.parse(neg_conclusion);
+  get_clauses(conc_tree.head);
+
+  bool contradiction = find_contradiction();
+  if (contradiction) {
+    std::cout << "CONTRADICTION FOUND\n";
+  } else {
+    std::cout << "NO Contradiction\n";
+  }
 }

@@ -1,6 +1,7 @@
 #pragma once
 #include <algorithm>
 #include <bit>
+#include <cmath>
 #include <cstddef>
 #include <functional>
 #include <numeric>
@@ -35,6 +36,7 @@ struct DynamicBitset {
 
 DynamicBitset operator&(const DynamicBitset &lhs, const DynamicBitset &rhs);
 DynamicBitset operator|(const DynamicBitset &lhs, const DynamicBitset &rhs);
+DynamicBitset operator~(const DynamicBitset &bs);
 
 namespace std {
 template <> struct hash<DynamicBitset> {

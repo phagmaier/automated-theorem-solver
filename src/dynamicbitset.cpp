@@ -119,3 +119,28 @@ DynamicBitset operator|(const DynamicBitset &lhs, const DynamicBitset &rhs) {
   result |= rhs;
   return result;
 }
+
+DynamicBitset operator~(const DynamicBitset &bs) {
+  DynamicBitset result = bs; // Make a copy
+
+  // Invert all the bits in the full blocks
+  for (size_t i = 0; i < result.m_blocks.size() - 1; ++i) {
+    result.m_blocks[i] = ~result.m_blocks[i];
+  }
+
+  // Handle the last block carefully
+  if (!result.m_blocks.empty()) {
+    size_t last_block_idx = result.m_blocks.size() - 1;
+    result.m_blocks[last_block_idx] = ~result.m_blocks[last_block_idx];
+
+    // Create a mask to clear out the unused bits
+    size_t bits_in_last_block = bs.size() % DynamicBitset::BITS_PER_BLOCK;
+    if (bits_in_last_block > 0) {
+      // This mask will have 1s for the bits that are actually in use
+      unsigned long long mask = (1ULL << bits_in_last_block) - 1;
+      result.m_blocks[last_block_idx] &= mask;
+    }
+  }
+
+  return result;
+}

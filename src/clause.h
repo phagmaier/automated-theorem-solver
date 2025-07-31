@@ -1,29 +1,29 @@
 #pragma once
 #include "dynamicbitset.h"
+#include <functional>
 
 struct Clause {
   DynamicBitset positive_mask;
   DynamicBitset negative_mask;
 
-  // The constructor now creates bitsets of the correct size
   Clause(size_t num_propositions)
       : positive_mask(num_propositions), negative_mask(num_propositions) {}
 
-  // DynamicBitset &operator|=(const DynamicBitset &other);
+  void set_positive(int pos) { positive_mask.set(pos); }
+  void set_negative(int pos) { negative_mask.set(pos); }
+  void unset_positive(int pos) { positive_mask.reset(pos); }
+  void unset_negative(int pos) { negative_mask.reset(pos); }
+
+  bool operator==(const Clause &other) const;
   bool operator<(const Clause &other) const;
 };
 
-/*
-// Your resolution check becomes:
-DynamicBitset clashes =
-    (A.positive_mask & B.negative_mask) | (A.negative_mask & B.positive_mask);
-
-if (clashes.count() == 1) {
-  // Valid resolution
-}
-
-// Your check for the empty clause becomes:
-if (new_clause.positive_mask.is_zero() && new_clause.negative_mask.is_zero()) {
-  // Contradiction found!
-}
-*/
+namespace std {
+template <> struct hash<Clause> {
+  size_t operator()(const Clause &c) const noexcept {
+    size_t h1 = std::hash<DynamicBitset>{}(c.positive_mask);
+    size_t h2 = std::hash<DynamicBitset>{}(c.negative_mask);
+    return h1 ^ (h2 << 1);
+  }
+};
+} // namespace std
