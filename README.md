@@ -41,7 +41,7 @@ To compile and run the prover, follow these steps:
 * All operations must be separated by **spaces**, with the exception of single-character operators (`~`, `(`, `)`).
 
 **Reserved words/Operations:**
-* `AND`, `and`
+* `AND`, `and`, `&&`
 * `OR`, `or`
 * `NOT`, `not`
 * `NEG`, `neg`, `~`
